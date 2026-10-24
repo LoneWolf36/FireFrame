@@ -153,7 +153,7 @@ The photo is resized to 1080p and becomes the wallpaper. The picture button on F
 
 ## Updating
 
-FireFrame checks this repo for a new release once a day. When there is one, it tells you on the home screen, and **Update to FireFrame x.y.z** shows up in Settings at the top right. Pick it, then press OK when the TV asks to install. Your dock, wallpaper and Home button stay as they are.
+FireFrame checks this repo for a new release once a day. When there is one, it tells you on the home screen, and **Update to FireFrame x.y.z** shows up in Settings at the top right. Pick it, then choose Install when the TV asks. Amazon's home screen shows for a couple of seconds while Android swaps the app, then FireFrame comes back on its own with your dock, wallpaper and Home button as they were.
 
 Fire OS asks for that one OK on every app install outside Amazon's Appstore, so updates can't be fully silent without root.
 
