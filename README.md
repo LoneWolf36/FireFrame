@@ -24,6 +24,7 @@ The stock Fire TV home screen above was captured on the stick FireFrame was buil
 - **An app drawer** with everything installed. Hold OK on any app to put it on the dock, move it or take it off.
 - **Wallpapers.** Five public domain NASA photos of Earth at night, or your own photo.
 - **A debloat script** that turns off Amazon's ads, screen tracking, telemetry, shopping, Alexa and Prime Video if you want. Every change is undoable.
+- **Updates itself** from this repo's releases. One OK on the remote, no computer needed.
 - **Small and fast.** A 2 MB app in plain Java with no libraries, made for a stick with 1 GB of RAM.
 
 ## Screenshots
@@ -150,6 +151,19 @@ Amazon's launcher still runs in the background, using about 35 MB instead of 140
 
 The photo is resized to 1080p and becomes the wallpaper. The picture button on FireFrame cycles through it and the built-in ones.
 
+## Updating
+
+FireFrame checks this repo for a new release once a day. When there is one, it tells you on the home screen, and **Update to FireFrame x.y.z** shows up in Settings at the top right. Pick it, then press OK when the TV asks to install. Your dock, wallpaper and Home button stay as they are.
+
+Fire OS asks for that one OK on every app install outside Amazon's Appstore, so updates can't be fully silent without root.
+
+On FireFrame 1.0.0 or 1.0.1, which came before the updater, update by hand once:
+
+```sh
+git pull
+./fireframe.sh install 192.168.1.50
+```
+
 ## Undo
 
 ```sh
@@ -196,6 +210,7 @@ It could. If Home stops opening FireFrame after an update, run `./fireframe.sh i
 | `app/src/.../HomeScreen.java` | the whole home screen, one view in plain Java |
 | `app/src/.../HomeService.java` | the Home button: overlay plus redirect |
 | `app/src/.../MainActivity.java` | FireFrame as an app, and the boot receiver |
+| `app/src/.../Updater.java` | checks GitHub releases and installs updates |
 | `build.sh` | builds the APK with the SDK's own tools, no Gradle, in about ten seconds |
 | `fireframe.sh` | install, debloat, wallpaper, memory and undo |
 | `debloat.txt` | every package the debloat can turn off, with notes |

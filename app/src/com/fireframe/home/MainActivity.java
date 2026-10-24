@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    // Fire TV starts on Amazon's home screen; this opens FireFrame as soon as the TV has booted.
+    // Fire TV starts on Amazon's home screen; this opens FireFrame as soon as the TV has booted, or FireFrame has updated.
     public static class Boot extends BroadcastReceiver {
         @Override
         public void onReceive(Context c, Intent i) {

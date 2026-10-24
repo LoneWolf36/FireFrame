@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fireframe.home" android:versionCode="2" android:versionName="1.0.1">
+    package="com.fireframe.home" android:versionCode="3" android:versionName="1.1.0">
     <uses-sdk android:minSdkVersion="22" android:targetSdkVersion="34" />
     <!-- Android 11+ only shows a launcher the apps it asks for. -->
     <queries>
@@ -14,6 +14,9 @@
         </intent>
     </queries>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Updates from GitHub releases: see Updater. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <application android:label="FireFrame" android:icon="@drawable/icon" android:banner="@drawable/banner"
@@ -41,8 +44,11 @@
         <receiver android:name=".MainActivity$Boot" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- and right after an update, so it doesn't land on Amazon's home screen -->
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".Updater" android:exported="false" />
         <!-- Fire TV ignores third-party home screens. This service covers Amazon's home screen with
              FireFrame whenever it opens. Turned on by fireframe.sh install, off by fireframe.sh undo. -->
         <service android:name=".HomeService"

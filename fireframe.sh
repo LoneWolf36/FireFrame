@@ -73,6 +73,7 @@ install)
   [ -f out/fireframe.apk ] || ./build.sh
   "$ADB" -s "$IP" install -r out/fireframe.apk
   home_on
+  tv appops set $PKG REQUEST_INSTALL_PACKAGES allow # so "Update" in FireFrame's settings can install updates
   tv am start -n $PKG/.MainActivity >/dev/null 2>&1
   echo "FireFrame is on the TV. Press Home on the remote to check it comes back."
   ;;

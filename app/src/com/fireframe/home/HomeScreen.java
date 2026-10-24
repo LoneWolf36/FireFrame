@@ -261,11 +261,10 @@ public class HomeScreen extends FrameLayout {
     }
 
     // Called whenever this screen comes to the front: catch up on changes made by the other copy
-    // (the app or the overlay) or by installs and uninstalls.
-    // Called whenever this screen comes to the front: catch up on changes made by the other copy
     // (the app or the overlay) or by installs and uninstalls. reset: Home was pressed, so close any
     // menus and go back to the dock.
     void onShown(boolean reset) {
+        Updater.check(ctx, () -> showCaption("FireFrame " + Updater.available(ctx) + " is out. Update it from Settings, top right."));
         if (reset) while (!layers.isEmpty()) closeLayer();
         if (!wallpaperKey().equals(shownWallpaper)) showWallpaper(wallpaperKey());
         if ((appsChanged || seenDockVersion != dockVersion) && layers.isEmpty()) buildDock();
@@ -496,10 +495,15 @@ public class HomeScreen extends FrameLayout {
 
     void openSettingsMenu(View anchor) {
         boolean amazon = isInstalled(HomeService.AMAZON_HOME);
-        String[] items = amazon ? new String[] {"Fire TV settings", "Amazon home screen"} : new String[] {"TV settings"};
-        menu(anchor, items, which -> {
+        final List<String> items = new ArrayList<>(amazon ? Arrays.asList("Fire TV settings", "Amazon home screen") : Arrays.asList("TV settings"));
+        final String update = Updater.available(ctx);
+        if (update != null) items.add("Update to FireFrame " + update);
+        menu(anchor, items.toArray(new String[0]), which -> {
             if (which == 0) {
                 start(new Intent(Settings.ACTION_SETTINGS));
+            } else if (update != null && which == items.size() - 1) {
+                showCaption("Downloading FireFrame " + update + "…");
+                Updater.install(ctx, () -> showCaption("Couldn't download the update. Check the Wi-Fi and try again."));
             } else {
                 HomeService.pausedUntil = SystemClock.elapsedRealtime() + 10 * 60 * 1000;
                 HomeService.hideOverlay();
