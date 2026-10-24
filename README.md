@@ -134,7 +134,11 @@ Fire OS protects some packages, like crash reporting and the main metrics servic
 
 Fire OS won't let you change the home screen, and it refuses to disable, uninstall, hide or suspend Amazon's launcher without root. I tried all four.
 
-So FireFrame works around it. A small accessibility service watches for Amazon's home screen to open. The moment it does, the service covers it with FireFrame, drawn as an overlay window, in well under a second. FireFrame then opens as a normal app behind the overlay, which Fire OS holds back for 5 seconds after Home is pressed, and the overlay steps aside. It's the same screen, so you can't see the handoff. At boot, FireFrame opens itself as soon as the TV has started.
+So FireFrame works around it. A small accessibility service keeps a hidden, ready-to-show copy of the home screen in an overlay window. It covers Amazon's launcher the instant that launcher starts to open, before it paints. Two signals trigger it: Amazon's own launcher sends an unguarded `com.amazon.tv.launcher.HOME_PRESSED` broadcast that FireFrame listens for, which lands about half a second sooner than the accessibility window event that acts as the backup. Behind the overlay, FireFrame opens as a normal app, which Fire OS holds back for 5 seconds after Home, and once it has drawn its first frame the overlay steps aside. It's the same screen, so you can't see the handoff.
+
+If you pick an app in those 5 seconds, FireFrame can't start it directly (Fire OS holds it), so it presses that app's tile on Amazon's launcher behind the overlay instead. Amazon's own launches aren't held, so the app opens right away. At boot, FireFrame opens itself as soon as the TV has started.
+
+This reliably keeps Amazon's home screen off the screen in testing, but it's a reaction, not a block: on a slow frame you might catch a flicker. The only way to remove Amazon's launcher outright is root, which this project does not do.
 
 Amazon's launcher still runs in the background, using about 35 MB instead of 140 MB. To get to it, open Settings on FireFrame's top right and pick "Amazon home screen".
 

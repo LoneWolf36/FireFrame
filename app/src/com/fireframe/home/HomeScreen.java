@@ -138,6 +138,7 @@ public class HomeScreen extends FrameLayout {
     boolean appsChanged;
     String shownWallpaper;
     static int dockVersion;
+    static int lastDock; // the dock app last focused, in either copy
     int seenDockVersion = -1;
 
     // The wallpaper and its blur, shared by the app and the overlay so they're decoded once.
@@ -261,10 +262,17 @@ public class HomeScreen extends FrameLayout {
 
     // Called whenever this screen comes to the front: catch up on changes made by the other copy
     // (the app or the overlay) or by installs and uninstalls.
-    void onShown() {
+    // Called whenever this screen comes to the front: catch up on changes made by the other copy
+    // (the app or the overlay) or by installs and uninstalls. reset: Home was pressed, so close any
+    // menus and go back to the dock.
+    void onShown(boolean reset) {
+        if (reset) while (!layers.isEmpty()) closeLayer();
         if (!wallpaperKey().equals(shownWallpaper)) showWallpaper(wallpaperKey());
         if ((appsChanged || seenDockVersion != dockVersion) && layers.isEmpty()) buildDock();
-        if (findFocus() == null && layers.isEmpty() && dockRow.getChildCount() > 0) dockRow.getChildAt(0).requestFocus();
+        if (!layers.isEmpty() || dockRow.getChildCount() == 0) return;
+        View f = findFocus();
+        // Both copies keep focus on the same dock app, so swapping one for the other can't be seen.
+        if (reset || f == null || f.getParent() == dockRow) dockRow.getChildAt(Math.min(lastDock, dockRow.getChildCount() - 1)).requestFocus();
     }
 
     String wallpaperKey() {
@@ -346,7 +354,13 @@ public class HomeScreen extends FrameLayout {
         if (layers.isEmpty()) dockRow.getChildAt(Math.min(keep, dockRow.getChildCount() - 1)).requestFocus();
     }
 
-    void launch(String p) {
+    void launch(final String p, String label) {
+        // On the overlay, in the 5 seconds after Home, only Amazon's launcher can open apps right away.
+        if (ctx instanceof HomeService) ((HomeService) ctx).launchThroughAmazon(label, () -> startApp(p), 0);
+        else startApp(p);
+    }
+
+    void startApp(String p) {
         Intent i = pm.getLeanbackLaunchIntentForPackage(p);
         if (i == null) i = pm.getLaunchIntentForPackage(p);
         try {
@@ -390,7 +404,7 @@ public class HomeScreen extends FrameLayout {
         col.addView(name, nlp);
         t.addView(col, new FrameLayout.LayoutParams(-1, -1));
 
-        t.setOnClickListener(v -> launch(p));
+        t.setOnClickListener(v -> launch(p, label));
         t.setOnLongClickListener(v -> { appMenu(v, p, inDock); return true; });
         t.setOnKeyListener((v, k, e) -> {
             if (k != KeyEvent.KEYCODE_MENU) return false;
@@ -423,6 +437,7 @@ public class HomeScreen extends FrameLayout {
         pill.setAlpha(0);
         t.setBackground(pill);
         t.setOnFocusChangeListener((v, has) -> {
+            if (has && t.getParent() == dockRow) lastDock = dockRow.indexOfChild(t);
             ObjectAnimator.ofInt(pill, "alpha", pill.getAlpha(), has ? 255 : 0).setDuration(140).start();
             t.animate().scaleX(has ? lift : 1).scaleY(has ? lift : 1).setDuration(180).setInterpolator(ease).start();
         });
@@ -601,6 +616,7 @@ public class HomeScreen extends FrameLayout {
         if (back != null && back.isAttachedToWindow()) back.requestFocus();
         else if (layers.isEmpty() && dockRow.getChildCount() > 0) dockRow.getChildAt(0).requestFocus();
         if (layers.isEmpty() && appsChanged) buildDock();
+        if (layers.isEmpty() && ctx instanceof HomeService) HomeService.menusClosed();
     }
 
     ViewGroup top() {

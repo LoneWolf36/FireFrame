@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ViewTreeObserver;
 
 // FireFrame as an app: the Home screen in a window of its own. See HomeScreen for everything else.
 public class MainActivity extends Activity {
@@ -28,8 +29,16 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         HomeService.pausedUntil = 0;
-        HomeService.hideOverlay(); // the real app is in front now
-        screen.onShown();
+        screen.onShown(false);
+        // Once this has drawn, the overlay covering Amazon's launcher can step aside. Not sooner, or
+        // Amazon's launcher shows through for a moment.
+        screen.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                screen.getViewTreeObserver().removeOnPreDrawListener(this);
+                screen.postDelayed(HomeService::appShown, 150);
+                return true;
+            }
+        });
     }
 
     // Fire TV starts on Amazon's home screen; this opens FireFrame as soon as the TV has booted.
