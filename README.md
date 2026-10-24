@@ -105,7 +105,7 @@ cd FireFrame
 
 The first time, the TV asks to allow debugging from your computer. Pick "Always allow" and press OK.
 
-Prefer not to build? Download `fireframe.apk` from [Releases](https://github.com/dyascj/FireFrame/releases) and run `adb install fireframe.apk`. Then run `./fireframe.sh install <ip>` anyway, since it also turns on the Home button service.
+Prefer not to build? Download the APK from [Releases](https://github.com/dyascj/FireFrame/releases/latest), copy it to `out/fireframe.apk` in your clone, and run `./fireframe.sh install <ip>`. The script installs it and turns on the Home button service.
 
 ## Debloat
 
